@@ -1,0 +1,11 @@
+pegaVisao factorial(n: number): number {
+    qualfoi? (== n 1) {
+        tomali 1;
+    }
+
+    tomali (* n factorial(- n 1));
+}
+
+cria result = factorial(12);
+
+radinho(result);

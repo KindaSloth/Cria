@@ -1,0 +1,7 @@
+pegaVisao add(x: number, y: number): number {
+    tomali (+ x y);
+}
+
+cria result = add(1, 2);
+
+radinho(result);

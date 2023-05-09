@@ -1,0 +1,11 @@
+pegaVisao fib(n: number): number {
+  qualfoi? (<= n 1) {
+    tomali n;
+  }
+
+  tomali (+ fib(- n 1) fib(- n 2));
+}
+
+cria result = fib(3);
+
+radinho(result);

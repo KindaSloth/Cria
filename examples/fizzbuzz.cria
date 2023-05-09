@@ -1,0 +1,19 @@
+pegaVisao fizzbuzz(num: number): string {
+  qualfoi? (== (% num 15) 0) {
+    tomali 'FizzBuzz';
+  }
+
+  qualfoi? (== (% num 5) 0) {
+    tomali 'Buzz';
+  }
+
+  qualfoi? (== (% num 3) 0) {
+    tomali 'Fizz';
+  }
+
+  tomali '';
+}
+
+cria result = fizzbuzz(90);
+
+radinho(result);
