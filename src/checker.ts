@@ -1,5 +1,5 @@
 import { Expr } from "./ast";
-import { arrayEquals } from "./utils";
+import { deepEqual } from "./utils";
 
 export type Type =
   | { type: "String" }
@@ -66,7 +66,9 @@ const inferOp = (
     if (equal(leftTy, rightTy)) return { type: "Boolean" };
 
     throw new Error(
-      `Type Mismatch in ${JSON.stringify(op.op)}, This condition will always return 'false' since the types have no overlap.`
+      `Type Mismatch in ${JSON.stringify(
+        op.op
+      )}, This condition will always return 'false' since the types have no overlap.`
     );
   }
 
@@ -82,7 +84,9 @@ const inferOp = (
       return { type: "String" };
 
     throw new Error(
-      `Type Error, both sides of this operation: ${JSON.stringify(op.op)} should have type number`
+      `Type Error, both sides of this operation: ${JSON.stringify(
+        op.op
+      )} should have type number`
     );
   }
 
@@ -94,7 +98,9 @@ const inferOp = (
     return { type: "Number" };
 
   throw new Error(
-    `Type Error, both sides of this operation: ${JSON.stringify(op.op)} should have type number`
+    `Type Error, both sides of this operation: ${JSON.stringify(
+      op.op
+    )} should have type number`
   );
 };
 
@@ -107,11 +113,15 @@ const inferFunctionApp = (
   )?.value;
 
   if (!f)
-    throw new Error(`Type Error, Cannot found: ${JSON.stringify(functionApp.functionName)}`);
+    throw new Error(
+      `Type Error, Cannot found: ${JSON.stringify(functionApp.functionName)}`
+    );
 
   if (f.type !== "Arrow")
     throw new Error(
-      `Type Error, ${JSON.stringify(functionApp.functionName)} is not a function.`
+      `Type Error, ${JSON.stringify(
+        functionApp.functionName
+      )} is not a function.`
     );
 
   // For now I'll just support BasicTypes, OP, FunctionApps and Variables as params.
@@ -125,17 +135,68 @@ const inferFunctionApp = (
     if (param.type === "Literal") {
       const ty = context.find((item) => item.name === param.value)?.value;
 
-      if (!ty) throw new Error(`Type Error, Cannot found: ${JSON.stringify(param.value)}`);
+      if (!ty)
+        throw new Error(
+          `Type Error, Cannot found: ${JSON.stringify(param.value)}`
+        );
 
       return ty;
     }
 
+    if (param.type === "Function") {
+      const exprAlreadyExist = context.find((item) => item.name === param.name);
+
+      if (exprAlreadyExist) {
+        throw new Error(`Function: ${param.name} already exist`);
+      }
+
+      const paramsExprAlreadyExist = param.params
+        .map((param) => context.find((item) => item.name === param.name))
+        .filter(
+          (
+            item
+          ): item is {
+            name: string;
+            value: Type;
+          } => item !== undefined
+        );
+
+      if (paramsExprAlreadyExist.length > 0) {
+        throw new Error(`Invalid param name in function: ${param.name}`);
+      }
+
+      const paramsContext: TyContext = param.params.map(
+        (param): { name: string; value: Type } => ({
+          name: param.name,
+          value: param.ty,
+        })
+      );
+
+      // Dirty (and lazy) hack to allow recursion
+      const internalContext: TyContext = [
+        {
+          name: param.name,
+          value: {
+            type: "Arrow",
+            params: param.params.map((param) => param.ty),
+            returnTy: param.returnTy,
+          },
+        },
+        ...paramsContext,
+        ...context,
+      ];
+
+      return inferFunction(param, internalContext);
+    }
+
     throw new Error(
-      `Unexpected Expression: ${JSON.stringify(param.type)}, this can't be used as param type`
+      `Unexpected Expression: ${JSON.stringify(
+        param.type
+      )}, this can't be used as param type`
     );
   });
 
-  if (arrayEquals(paramsTypes, f.params)) return f.returnTy;
+  if (deepEqual(paramsTypes, f.params)) return f.returnTy;
 
   throw new Error(`Type Error, wrong param types`);
 };
@@ -146,7 +207,10 @@ const inferLiteral = (
 ): Type => {
   const ty = context.find((item) => item.name === literal.value)?.value;
 
-  if (!ty) throw new Error(`Type Error, Cannot found: ${JSON.stringify(literal.value)}`);
+  if (!ty)
+    throw new Error(
+      `Type Error, Cannot found: ${JSON.stringify(literal.value)}`
+    );
 
   return ty;
 };
@@ -233,7 +297,9 @@ const inferFunction = (
 
   if (!equal(functionExpr.returnTy, returnTy)) {
     throw new Error(
-      `Type Error, expected: ${JSON.stringify(functionExpr.returnTy)}, received: ${JSON.stringify(returnTy)}`
+      `Type Error, expected: ${JSON.stringify(
+        functionExpr.returnTy
+      )}, received: ${JSON.stringify(returnTy)}`
     );
   }
 
@@ -242,15 +308,18 @@ const inferFunction = (
   return { type: "Arrow", params: paramsTy, returnTy };
 };
 
-const inferConsole = (console: Extract<Expr, { type: "Console" }>, context: TyContext): Type => {
+const inferConsole = (
+  console: Extract<Expr, { type: "Console" }>,
+  context: TyContext
+): Type => {
   if (console.values.length <= 0) {
-    throw new Error('Radinho should have at least one value');
+    throw new Error("Radinho should have at least one value");
   }
 
   const _ = check(console.values, context);
 
   return { type: "Void" };
-}
+};
 
 export const infer = (expr: Expr, context: TyContext): Type => {
   if (expr.type === "Literal") return inferLiteral(expr, context);
@@ -281,7 +350,9 @@ export const check = (exprs: Expr[], context: TyContext): [true, TyContext] => {
     if (!current) return [true, context];
 
     if (current.type === "Variable") {
-      const exprAlreadyExist = context.find(item => item.name === current.name);
+      const exprAlreadyExist = context.find(
+        (item) => item.name === current.name
+      );
 
       if (exprAlreadyExist) {
         throw new Error(`Variable: ${current.name} already exist`);
@@ -297,10 +368,27 @@ export const check = (exprs: Expr[], context: TyContext): [true, TyContext] => {
     }
 
     if (current.type === "Function") {
-      const exprAlreadyExist = context.find(item => item.name === current.name);
+      const exprAlreadyExist = context.find(
+        (item) => item.name === current.name
+      );
 
       if (exprAlreadyExist) {
         throw new Error(`Function: ${current.name} already exist`);
+      }
+
+      const paramsExprAlreadyExist = current.params
+        .map((param) => context.find((item) => item.name === param.name))
+        .filter(
+          (
+            item
+          ): item is {
+            name: string;
+            value: Type;
+          } => item !== undefined
+        );
+
+      if (paramsExprAlreadyExist.length > 0) {
+        throw new Error(`Invalid param name in function: ${current.name}`);
       }
 
       const paramsContext: TyContext = current.params.map(

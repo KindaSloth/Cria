@@ -47,3 +47,17 @@ pegaVisao factorial(n: number): number {
 ```
 radinho("this string will be logged (aka compiled to console.log)");
 ```
+
+## High Order Functions
+
+```
+pegaVisao add(x: number, y: number): number {
+    tomali (+ x y);
+}
+
+pegaVisao test(f: (number, number) => number, x: number, y: number): number {
+    tomali f(x, y);
+}
+
+cria result = test(add, 1, 2);
+```

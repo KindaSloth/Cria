@@ -56,6 +56,33 @@ export class Parser {
     return { type: "Variable", name: name.value, value };
   }
 
+  private parseTypeDeclaration(): Type {
+    if (this.peek()?.type === "OpenParentheses") {
+      this.consume("OpenParentheses");
+
+      const paramsTy: Type[] = [];
+
+      while (this.peek()?.type !== "CloseParentheses") {
+        const ty = this.parseTypeDeclaration();
+        paramsTy.push(ty);
+
+        if (this.peek()?.type === "Comma") {
+          this.consume("Comma");
+        }
+      }
+
+      this.consume("CloseParentheses");
+      this.consume("Arrow");
+      const returnTy = this.parseTypeDeclaration();
+
+      return { type: "Arrow", params: paramsTy, returnTy };
+    } else {
+      const ty = this.consume("TypeDeclaration");
+
+      return ty.tyValue;
+    }
+  }
+
   private parseFunction(): Expr {
     this.consume("FunctionDeclaration");
     const name = this.consume("Literal");
@@ -67,8 +94,8 @@ export class Parser {
     if (this.peek()?.type !== "CloseParentheses") {
       const lit = this.consume("Literal");
       this.consume("Colon");
-      const ty = this.consume("TypeDeclaration");
-      params.push({ name: lit.value, ty: ty.tyValue });
+      const ty = this.parseTypeDeclaration();
+      params.push({ name: lit.value, ty });
 
       if (this.peek()?.type === "Comma") {
         while (this.peek()?.type !== "CloseParentheses") {
@@ -77,8 +104,8 @@ export class Parser {
           // calling this of newLit and newTy just to avoid shadowing
           const newLit = this.consume("Literal");
           this.consume("Colon");
-          const newTy = this.consume("TypeDeclaration");
-          params.push({ name: newLit.value, ty: newTy.tyValue });
+          const newTy = this.parseTypeDeclaration();
+          params.push({ name: newLit.value, ty: newTy });
         }
       }
     }
@@ -86,7 +113,7 @@ export class Parser {
     this.consume("CloseParentheses");
 
     this.consume("Colon");
-    const returnTy = this.consume("TypeDeclaration");
+    const returnTy = this.parseTypeDeclaration();
 
     this.consume("OpenCurlyBracket");
 
@@ -103,7 +130,7 @@ export class Parser {
       name: name.value,
       params: params,
       body,
-      returnTy: returnTy.tyValue,
+      returnTy,
     };
   }
 
@@ -201,8 +228,8 @@ export class Parser {
         type: "OP",
         op: op.value,
         left,
-        right
-      }
+        right,
+      };
     }
 
     if (this.peek()?.type === "Return") return this.parseReturn();

@@ -270,4 +270,244 @@ describe.concurrent("Parser suite", () => {
 
     expect(parser.parse()).toStrictEqual(expected);
   });
+
+  it("Should parse an high order function correctly", () => {
+    const input: Token[] = [
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "add" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "x" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "CloseParentheses" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "OpenParentheses" },
+      { type: "OP", value: "+" },
+      { type: "Literal", value: "x" },
+      { type: "Literal", value: "y" },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "test" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "f" },
+      { type: "Colon" },
+      { type: "OpenParentheses" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "CloseParentheses" },
+      { type: "Arrow" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      { type: "Literal", value: "x" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "CloseParentheses" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "Literal", value: "f" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "x" },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
+      { type: "VariableDeclaration" },
+      { type: "Literal", value: "result" },
+      { type: "Equal" },
+      { type: "Literal", value: "test" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "add" },
+      { type: "Comma" },
+      { type: "Number", value: 1 },
+      { type: "Comma" },
+      { type: "Number", value: 2 },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
+    ];
+    const expected: Expr[] = [
+      {
+        type: "Function",
+        name: "add",
+        params: [
+          {
+            name: "x",
+            ty: {
+              type: "Number",
+            },
+          },
+          {
+            name: "y",
+            ty: {
+              type: "Number",
+            },
+          },
+        ],
+        body: [
+          {
+            type: "ReturnStatement",
+            value: {
+              type: "OP",
+              op: "+",
+              left: {
+                type: "Literal",
+                value: "x",
+              },
+              right: {
+                type: "Literal",
+                value: "y",
+              },
+            },
+          },
+        ],
+        returnTy: {
+          type: "Number",
+        },
+      },
+      {
+        type: "Function",
+        name: "test",
+        params: [
+          {
+            name: "f",
+            ty: {
+              type: "Arrow",
+              params: [
+                {
+                  type: "Number",
+                },
+                {
+                  type: "Number",
+                },
+              ],
+              returnTy: {
+                type: "Number",
+              },
+            },
+          },
+          {
+            name: "x",
+            ty: {
+              type: "Number",
+            },
+          },
+          {
+            name: "y",
+            ty: {
+              type: "Number",
+            },
+          },
+        ],
+        body: [
+          {
+            type: "ReturnStatement",
+            value: {
+              type: "FunctionApp",
+              functionName: "f",
+              params: [
+                {
+                  type: "Literal",
+                  value: "x",
+                },
+                {
+                  type: "Literal",
+                  value: "y",
+                },
+              ],
+            },
+          },
+        ],
+        returnTy: {
+          type: "Number",
+        },
+      },
+      {
+        type: "Variable",
+        name: "result",
+        value: {
+          type: "FunctionApp",
+          functionName: "test",
+          params: [
+            {
+              type: "Literal",
+              value: "add",
+            },
+            {
+              type: "Number",
+              value: 1,
+            },
+            {
+              type: "Number",
+              value: 2,
+            },
+          ],
+        },
+      },
+    ];
+
+    const parser = new Parser(input);
+
+    expect(parser.parse()).toStrictEqual(expected);
+  });
 });

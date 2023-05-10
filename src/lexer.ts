@@ -8,14 +8,25 @@ import {
   takeWhile,
 } from "./utils";
 
-export type OP = "+" | "-" | "*" | "/" | "%" | "<" | ">" | "==" | "!=" | "<=" | ">=";
+export type OP =
+  | "+"
+  | "-"
+  | "*"
+  | "/"
+  | "%"
+  | "<"
+  | ">"
+  | "=="
+  | "!="
+  | "<="
+  | ">=";
 
 export type Token =
   | { type: "Literal"; value: string }
   | { type: "String"; value: string }
   | { type: "Number"; value: number }
   | { type: "Boolean"; value: boolean }
-  | { type: "TypeDeclaration", tyValue: Type }
+  | { type: "TypeDeclaration"; tyValue: Type }
   | { type: "VariableDeclaration" }
   | { type: "Equal" }
   | { type: "FunctionDeclaration" }
@@ -28,6 +39,7 @@ export type Token =
   | { type: "IfDeclaration" }
   | { type: "OP"; value: OP }
   | { type: "Colon" }
+  | { type: "Arrow" }
   | { type: "SemiColon" };
 
 export type TokenType = Token["type"];
@@ -77,8 +89,12 @@ export const tokenToString = (token: Token): string => {
     return "qualfoi?";
   }
 
-  if (token.type === 'Colon') {
-    return ':';
+  if (token.type === "Colon") {
+    return ":";
+  }
+
+  if (token.type === "Arrow") {
+    return "=>";
   }
 
   if (token.type === "SemiColon") {
@@ -101,7 +117,7 @@ export const takeLiteral = (str: string): [string, string] => {
 export const takeString = (str: string): [string, string] => {
   const strWithoutFirstQuote = dropFromString(str, 1);
 
-  const string = takeWhile(strWithoutFirstQuote, (c) => c !== '"' && c !== '\'' );
+  const string = takeWhile(strWithoutFirstQuote, (c) => c !== '"' && c !== "'");
   const rest = dropFromString(strWithoutFirstQuote, string.length + 1);
 
   return [string, rest];
@@ -161,15 +177,24 @@ export const lexer = (str: string): Token[] => {
     }
 
     if (current === "s" && take(str, 6) === "string") {
-      return [{ type: "TypeDeclaration", tyValue: { type: "String" } }, ...lexer(dropFromString(str, 6))];
+      return [
+        { type: "TypeDeclaration", tyValue: { type: "String" } },
+        ...lexer(dropFromString(str, 6)),
+      ];
     }
 
     if (current === "n" && take(str, 6) === "number") {
-      return [{ type: "TypeDeclaration", tyValue: { type: "Number" } }, ...lexer(dropFromString(str, 6))];
+      return [
+        { type: "TypeDeclaration", tyValue: { type: "Number" } },
+        ...lexer(dropFromString(str, 6)),
+      ];
     }
 
     if (current === "b" && take(str, 7) === "boolean") {
-      return [{ type: "TypeDeclaration", tyValue: { type: "Boolean" } }, ...lexer(dropFromString(str, 7))];
+      return [
+        { type: "TypeDeclaration", tyValue: { type: "Boolean" } },
+        ...lexer(dropFromString(str, 7)),
+      ];
     }
 
     const [literal, rest] = takeLiteral(str);
@@ -178,10 +203,14 @@ export const lexer = (str: string): Token[] => {
   } else {
     const xs = dropFromString(str, 1);
 
-    if (current === '"' || current === '\'') {
+    if (current === '"' || current === "'") {
       const [string, rest] = takeString(str);
 
       return [{ type: "String", value: string }, ...lexer(rest)];
+    }
+
+    if (current === "=" && take(str, 2) === "=>") {
+      return [{ type: "Arrow" }, ...lexer(dropFromString(str, 2))];
     }
 
     if (current === "=" && take(str, 2) === "==") {

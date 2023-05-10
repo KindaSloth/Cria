@@ -43,104 +43,232 @@ describe.concurrent("Utils suite", () => {
   });
 
   it("Should tokenize an function code correctly", () => {
-    const tokens = lexer('pegaVisao test(x: string, y: number): boolean { tomali true; }');
+    const tokens = lexer(
+      "pegaVisao test(x: string, y: number): boolean { tomali true; }"
+    );
     const expectedResult: Token[] = [
-      { type: 'FunctionDeclaration' },
-      { type: 'Literal', value: 'test' },
-      { type: 'OpenParentheses' },
-      { type: 'Literal', value: 'x' },
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "test" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "x" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "String" } },
-      { type: 'Comma' },
-      { type: 'Literal', value: 'y' },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Number" } },
-      { type: 'CloseParentheses' },
+      { type: "CloseParentheses" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Boolean" } },
-      { type: 'OpenCurlyBracket' },
-      { type: 'Return' },
-      { type: 'Boolean', value: true },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "Boolean", value: true },
       { type: "SemiColon" },
-      { type: 'CloseCurlyBracket' }
+      { type: "CloseCurlyBracket" },
     ];
 
     expect(tokens).toStrictEqual(expectedResult);
   });
 
   it("Should tokenize an function application code correctly", () => {
-    const tokens = lexer("pegaVisao add(x: number, y: number): number { tomali x; } cria result = add(1, 2);");
+    const tokens = lexer(
+      "pegaVisao add(x: number, y: number): number { tomali x; } cria result = add(1, 2);"
+    );
     const expectedResult: Token[] = [
-      { type: 'FunctionDeclaration' },
-      { type: 'Literal', value: 'add' },
-      { type: 'OpenParentheses' },
-      { type: 'Literal', value: 'x' },
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "add" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "x" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Number" } },
-      { type: 'Comma' },
-      { type: 'Literal', value: 'y' },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Number" } },
-      { type: 'CloseParentheses' },
+      { type: "CloseParentheses" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Number" } },
-      { type: 'OpenCurlyBracket' },
-      { type: 'Return' },
-      { type: 'Literal', value: 'x' },
-      { type: 'SemiColon' },
-      { type: 'CloseCurlyBracket' },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "Literal", value: "x" },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
       { type: "VariableDeclaration" },
       { type: "Literal", value: "result" },
       { type: "Equal" },
-      { type: 'Literal', value: 'add' },
-      { type: 'OpenParentheses' },
-      { type: 'Number', value: 1 },
-      { type: 'Comma' },
-      { type: 'Number', value: 2 },
-      { type: 'CloseParentheses' },
+      { type: "Literal", value: "add" },
+      { type: "OpenParentheses" },
+      { type: "Number", value: 1 },
+      { type: "Comma" },
+      { type: "Number", value: 2 },
+      { type: "CloseParentheses" },
       { type: "SemiColon" },
     ];
 
     expect(tokens).toStrictEqual(expectedResult);
   });
 
-  it('Should tokenize an function with if condition correctly', () => {
-    const tokens = lexer("pegaVisao factorial(n: number): number { qualfoi? (== n 1) { tomali 1; } tomali (* n factorial(- n 1)); }");
+  it("Should tokenize an function with if condition correctly", () => {
+    const tokens = lexer(
+      "pegaVisao factorial(n: number): number { qualfoi? (== n 1) { tomali 1; } tomali (* n factorial(- n 1)); }"
+    );
     const expectedResult: Token[] = [
-      { type: 'FunctionDeclaration' },
-      { type: 'Literal', value: 'factorial' },
-      { type: 'OpenParentheses' },
-      { type: 'Literal', value: 'n' },
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "factorial" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "n" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Number" } },
-      { type: 'CloseParentheses' },
+      { type: "CloseParentheses" },
       { type: "Colon" },
       { type: "TypeDeclaration", tyValue: { type: "Number" } },
-      { type: 'OpenCurlyBracket' },
-      { type: 'IfDeclaration' },
-      { type: 'OpenParentheses' },
-      { type: 'OP', value: '==' },
-      { type: 'Literal', value: 'n' },
-      { type: 'Number', value: 1 },
-      { type: 'CloseParentheses' },
-      { type: 'OpenCurlyBracket' },
-      { type: 'Return' },
-      { type: 'Number', value: 1 },
-      { type: 'SemiColon' },
-      { type: 'CloseCurlyBracket' },
-      { type: 'Return' },
-      { type: 'OpenParentheses' },
-      { type: 'OP', value: '*' },
-      { type: 'Literal', value: 'n' },
-      { type: 'Literal', value: 'factorial' },
-      { type: 'OpenParentheses' },
-      { type: 'OP', value: '-' },
-      { type: 'Literal', value: 'n' },
-      { type: 'Number', value: 1 },
-      { type: 'CloseParentheses' },
-      { type: 'CloseParentheses' },
-      { type: 'SemiColon' },
-      { type: 'CloseCurlyBracket' }
+      { type: "OpenCurlyBracket" },
+      { type: "IfDeclaration" },
+      { type: "OpenParentheses" },
+      { type: "OP", value: "==" },
+      { type: "Literal", value: "n" },
+      { type: "Number", value: 1 },
+      { type: "CloseParentheses" },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "Number", value: 1 },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
+      { type: "Return" },
+      { type: "OpenParentheses" },
+      { type: "OP", value: "*" },
+      { type: "Literal", value: "n" },
+      { type: "Literal", value: "factorial" },
+      { type: "OpenParentheses" },
+      { type: "OP", value: "-" },
+      { type: "Literal", value: "n" },
+      { type: "Number", value: 1 },
+      { type: "CloseParentheses" },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
+    ];
+
+    expect(tokens).toStrictEqual(expectedResult);
+  });
+
+  it("Should tokenize an high order function correctly", () => {
+    const tokens = lexer(
+      "pegaVisao add(x: number, y: number): number { tomali (+ x y); } pegaVisao test(f: (number, number) => number, x: number, y: number): number { tomali f(x, y); } cria result = test(add, 1, 2);"
+    );
+    const expectedResult: Token[] = [
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "add" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "x" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "CloseParentheses" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "OpenParentheses" },
+      { type: "OP", value: "+" },
+      { type: "Literal", value: "x" },
+      { type: "Literal", value: "y" },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
+      { type: "FunctionDeclaration" },
+      { type: "Literal", value: "test" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "f" },
+      { type: "Colon" },
+      { type: "OpenParentheses" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "CloseParentheses" },
+      { type: "Arrow" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      { type: "Literal", value: "x" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "CloseParentheses" },
+      { type: "Colon" },
+      {
+        type: "TypeDeclaration",
+        tyValue: {
+          type: "Number",
+        },
+      },
+      { type: "OpenCurlyBracket" },
+      { type: "Return" },
+      { type: "Literal", value: "f" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "x" },
+      { type: "Comma" },
+      { type: "Literal", value: "y" },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
+      { type: "CloseCurlyBracket" },
+      { type: "VariableDeclaration" },
+      { type: "Literal", value: "result" },
+      { type: "Equal" },
+      { type: "Literal", value: "test" },
+      { type: "OpenParentheses" },
+      { type: "Literal", value: "add" },
+      { type: "Comma" },
+      { type: "Number", value: 1 },
+      { type: "Comma" },
+      { type: "Number", value: 2 },
+      { type: "CloseParentheses" },
+      { type: "SemiColon" },
     ];
 
     expect(tokens).toStrictEqual(expectedResult);

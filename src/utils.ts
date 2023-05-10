@@ -47,76 +47,23 @@ export const isDigit = (str: string): boolean =>
 export const isAlphaNum = (str: string): boolean =>
   isLetter(str) || isDigit(str);
 
-export const arrayEquals = <T>(a: T[], b: T[]): boolean =>
-  a.length === b.length &&
-  a.every((v) => {
-    if (typeof v === "object" && !isNull(v)) {
-      if (Array.isArray(v)) {
-        return !isNullish(
-          b
-            .filter((item) => Array.isArray(item))
-            .find((item) => arrayEquals(item as any, v))
-        );
-      }
-
-      return !isNullish(
-        b
-          .filter((item) => typeof item === "object")
-          .find((item) => objectEquals(item as any, v))
-      );
-    }
-
-    return b.includes(v);
-  });
-
-export const objectIncludes = <T extends object>(value: T, arg: T): boolean => {
-  const keysIncludes = Object.keys(arg).every((k) =>
-    Object.keys(value).includes(k)
-  );
-
-  const valuesIncludes = Object.values(arg).every((v) => {
-    if (typeof v === "object" && !isNull(v)) {
-      if (Array.isArray(v)) {
-        return !isNullish(
-          Object.values(value).find((item) => arrayEquals(v, item))
-        );
-      }
-
-      return !isNullish(
-        Object.values(value).find((item) => objectEquals(v, item))
-      );
-    }
-
-    return Object.values(value).includes(v);
-  });
-
-  return keysIncludes && valuesIncludes;
-};
-
-export const objectEquals = <T extends object>(value: T, arg: T) => {
-  if (Object.keys(value).length !== Object.keys(arg).length) return false;
-
-  for (const key in value) {
-    if (Object.prototype.hasOwnProperty.call(arg, key)) {
-      if (value[key] !== arg[key]) return false;
-    }
-  }
-
-  return true;
-};
-
-export const isNull = <T>(value: T): boolean => {
-  if (value === null) {
+export const deepEqual = <T>(x: T, y: T) => {
+  if (x === y) {
     return true;
-  }
+  } else if (
+    typeof x == "object" &&
+    x != null &&
+    typeof y == "object" &&
+    y != null
+  ) {
+    if (Object.keys(x).length != Object.keys(y).length) return false;
 
-  return false;
-};
+    for (var prop in x) {
+      if (y.hasOwnProperty(prop)) {
+        if (!deepEqual(x[prop], y[prop])) return false;
+      } else return false;
+    }
 
-export const isNullish = <T>(value: T): boolean => {
-  if (value === null || value === undefined) {
     return true;
-  }
-
-  return false;
+  } else return false;
 };

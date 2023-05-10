@@ -355,4 +355,159 @@ describe.concurrent("Checker suite", () => {
 
     expect(ty).toStrictEqual({ type: "Boolean" });
   });
+
+  it("Should infer High Order Function type and add into the context", () => {
+    const exprs: Expr[] = [
+      {
+        type: "Function",
+        name: "add",
+        params: [
+          {
+            name: "x",
+            ty: {
+              type: "Number",
+            },
+          },
+          {
+            name: "y",
+            ty: {
+              type: "Number",
+            },
+          },
+        ],
+        body: [
+          {
+            type: "ReturnStatement",
+            value: {
+              type: "OP",
+              op: "+",
+              left: {
+                type: "Literal",
+                value: "x",
+              },
+              right: {
+                type: "Literal",
+                value: "y",
+              },
+            },
+          },
+        ],
+        returnTy: {
+          type: "Number",
+        },
+      },
+      {
+        type: "Function",
+        name: "test",
+        params: [
+          {
+            name: "f",
+            ty: {
+              type: "Arrow",
+              params: [
+                {
+                  type: "Number",
+                },
+                {
+                  type: "Number",
+                },
+              ],
+              returnTy: {
+                type: "Number",
+              },
+            },
+          },
+          {
+            name: "x",
+            ty: {
+              type: "Number",
+            },
+          },
+          {
+            name: "y",
+            ty: {
+              type: "Number",
+            },
+          },
+        ],
+        body: [
+          {
+            type: "ReturnStatement",
+            value: {
+              type: "FunctionApp",
+              functionName: "f",
+              params: [
+                {
+                  type: "Literal",
+                  value: "x",
+                },
+                {
+                  type: "Literal",
+                  value: "y",
+                },
+              ],
+            },
+          },
+        ],
+        returnTy: {
+          type: "Number",
+        },
+      },
+      {
+        type: "Variable",
+        name: "result",
+        value: {
+          type: "FunctionApp",
+          functionName: "test",
+          params: [
+            {
+              type: "Literal",
+              value: "add",
+            },
+            {
+              type: "Number",
+              value: 1,
+            },
+            {
+              type: "Number",
+              value: 2,
+            },
+          ],
+        },
+      },
+    ];
+    const [checked, context] = check(exprs, []);
+
+    expect(checked).toBe(true);
+    expect(context).toStrictEqual([
+      {
+        name: "result",
+        value: { type: "Number" },
+      },
+      {
+        name: "test",
+        value: {
+          type: "Arrow",
+          params: [
+            {
+              type: "Arrow",
+              params: [{ type: "Number" }, { type: "Number" }],
+              returnTy: { type: "Number" },
+            },
+            { type: "Number" },
+            { type: "Number" },
+          ],
+          returnTy: { type: "Number" },
+        },
+      },
+      {
+        name: "add",
+        value: {
+          type: "Arrow",
+          params: [{ type: "Number" }, { type: "Number" }],
+          returnTy: { type: "Number" },
+        },
+      },
+    ]);
+  });
 });
