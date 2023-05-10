@@ -21,7 +21,8 @@ const checkStrictEqualParams = (params1: Type[], params2: Type[]): boolean => {
   const [current1, ...rest1] = params1;
   const [current2, ...rest2] = params2;
 
-  if (current1 === current2) return checkStrictEqualParams(rest1, rest2);
+  if (deepEqual(current1, current2))
+    return checkStrictEqualParams(rest1, rest2);
 
   return false;
 };
