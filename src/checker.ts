@@ -125,7 +125,6 @@ const inferFunctionApp = (
       )} is not a function.`
     );
 
-  // For now I'll just support BasicTypes, OP, FunctionApps and Variables as params.
   const paramsTypes = functionApp.params.map((param) => {
     if (isBasicType(param)) return inferBasicTypes(param);
 
